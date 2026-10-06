@@ -1,0 +1,10 @@
+{
+  "name": "smali",
+  "main": "worker.js",
+  "compatibility_date": "2025-09-01",
+  "durable_objects": {
+    "bindings": [{ "name": "GROUP", "class_name": "Group" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Group"] }],
+  "observability": { "enabled": true }
+}
