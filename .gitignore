@@ -1,0 +1,8 @@
+# Upprunakóðinn (á að verða aðalkóðinn síðar, sjá CLAUDE.md)
+smali-src.zip
+*.zip
+
+# Wrangler og node
+node_modules/
+.wrangler/
+.dev.vars
