@@ -1,7 +1,9 @@
 {
+  "$schema": "node_modules/wrangler/config-schema.json",
   "name": "smali",
-  "main": "worker.js",
+  "main": "src/worker.js",
   "compatibility_date": "2025-09-01",
+  "assets": { "directory": "./public", "binding": "ASSETS" },
   "durable_objects": {
     "bindings": [{ "name": "GROUP", "class_name": "Group" }]
   },

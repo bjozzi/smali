@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="is">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Smali</title>
+<meta name="theme-color" content="#24412f">
+<meta name="description" content="Sjáðu alla í smalamennskunni á korti, líka í þoku og stopulu sambandi.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Smali">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div id="map" aria-label="Kort"></div>
+
+<header class="bar">
+  <button id="codeBtn" class="code" title="Bjóða í hópinn">
+    <span class="code-label">Hópur</span>
+    <span id="codeText" class="code-text">—</span>
+  </button>
+  <div id="status" class="status status-wait" role="status">Bíð eftir GPS</div>
+  <button id="menuBtn" class="icon-btn" aria-label="Valmynd">
+    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+  </button>
+</header>
+
+<div id="helpBanner" class="help-banner" hidden></div>
+
+<div class="fabs">
+  <button id="fitBtn" class="fab" aria-label="Sýna alla">
+    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <button id="meBtn" class="fab" aria-label="Mín staðsetning">
+    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  </button>
+</div>
+
+<section id="sheet" class="sheet" aria-label="Smalar">
+  <button id="sheetHandle" class="sheet-handle" aria-expanded="false">
+    <span class="grip"></span>
+    <span id="sheetTitle">Smalar</span>
+  </button>
+  <ul id="list" class="list"></ul>
+</section>
+
+<!-- Innskráning í hóp -->
+<div id="join" class="overlay" hidden>
+  <form id="joinForm" class="card">
+    <div class="brand">
+      <img src="/icon-192.png" alt="" width="56" height="56">
+      <div>
+        <h1>Smali</h1>
+        <p>Allir í smalamennskunni á einu korti.</p>
+      </div>
+    </div>
+    <label>Nafnið þitt
+      <input id="nameInput" autocomplete="given-name" maxlength="30" required placeholder="t.d. Björn">
+    </label>
+    <label>Hópkóði
+      <input id="codeInput" autocapitalize="characters" autocomplete="off" maxlength="12" placeholder="t.d. GONGUR24" pattern="[A-Za-z0-9]{4,12}">
+    </label>
+    <button type="submit" class="primary">Ganga í hóp</button>
+    <button type="button" id="newGroupBtn" class="secondary">Búa til nýjan hóp</button>
+    <p class="fine">Enginn aðgangur eða lykilorð. Allir sem hafa kóðann sjá staðsetningu hópsins.</p>
+  </form>
+</div>
+
+<!-- Valmynd -->
+<div id="menu" class="overlay" hidden>
+  <div class="card menu">
+    <div class="menu-head">
+      <h2>Valmynd</h2>
+      <button class="icon-btn dark" data-close aria-label="Loka">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <button id="helpBtn" class="help-toggle">Ég þarf aðstoð</button>
+    <button id="shareBtn" class="secondary">Bjóða öðrum í hópinn</button>
+    <button id="dlBtn" class="secondary">Vista kort af svæðinu á skjánum</button>
+    <p id="dlInfo" class="fine"></p>
+    <label class="switch"><input type="checkbox" id="wakeChk"> Halda skjánum kveiktum</label>
+    <label class="switch"><input type="checkbox" id="coverChk" checked> Sýna gengið svæði</label>
+    <span class="label">Hvað sér hver smali langt til hvorrar handar</span>
+    <div class="seg" role="group" aria-label="Sjónlína">
+      <button type="button" data-cover="50" aria-pressed="false">50 m</button>
+      <button type="button" data-cover="100" aria-pressed="true">100 m</button>
+      <button type="button" data-cover="200" aria-pressed="false">200 m</button>
+    </div>
+    <p class="fine">Í þoku er 50 m nær lagi. Gult svæði er það sem einhver hefur gengið yfir, ólitað er ógengið.</p>
+    <label class="switch"><input type="checkbox" id="lineChk" checked> Sýna smalalínu</label>
+    <span class="label">Rautt ef smali er meira en svona langt á eftir næsta manni</span>
+    <div class="seg" role="group" aria-label="Of aftarlega">
+      <button type="button" data-lag="150" aria-pressed="false">150 m</button>
+      <button type="button" data-lag="300" aria-pressed="true">300 m</button>
+      <button type="button" data-lag="500" aria-pressed="false">500 m</button>
+    </div>
+    <label class="switch"><input type="checkbox" id="trailChk" checked> Sýna slóðir</label>
+    <label>Nafnið þitt
+      <input id="renameInput" maxlength="30">
+    </label>
+    <p id="tip" class="tip"></p>
+    <button id="leaveBtn" class="danger">Hætta að deila og fara úr hóp</button>
+    <p class="fine">Kort: © Landmælingar Íslands</p>
+  </div>
+</div>
+
+<!-- Niðurhal korta -->
+<div id="dl" class="overlay" hidden>
+  <div class="card">
+    <h2>Vista kort</h2>
+    <p id="dlText"></p>
+    <progress id="dlProg" max="1" value="0"></progress>
+    <div class="row">
+      <button id="dlGo" class="primary">Vista</button>
+      <button id="dlCancel" class="secondary">Hætta við</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="/vendor/leaflet/leaflet.js"></script>
+<script src="/sweep.js"></script>
+<script src="/cover.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>

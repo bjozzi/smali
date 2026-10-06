@@ -6,10 +6,7 @@ Upphaflega smíðað í Claude spjalli 2.–6. okt. 2026. Þessi skrá er yfirf�
 
 ## Staðan núna
 
-Í geymslunni eru tvær útgáfur af sama kóða:
-
-- `worker.js` + `wrangler.jsonc`: allt appið í einni skrá (vefappið er innbyggt sem `ASSETS`). Þetta er það sem Cloudflare á að byggja núna. Engin npm skref, engin build.
-- `smali-src.zip`: upprunakóðinn með möppum (`src/`, `public/`, `test/`, `package.json`, `wrangler.jsonc` með `assets`). `worker.js` var búin til úr honum. Á að verða aðalkóðinn (sjá verkefni 5).
+Upprunakóðinn (`src/`, `public/`, `test/`, `package.json`, `wrangler.jsonc` með `assets: ./public`) er aðalkóðinn. Gamla einnar-skráar `worker.js` (vefappið innbyggt sem `ASSETS`) var fjarlægð; hún var staðfest jafngild upprunakóðanum þegar skipt var. `smali-src.zip` er ekki í geymslunni (`.gitignore`). Workers Builds keyrir `npm install` sjálft þar sem `package.json` er til.
 
 Hýsing: Cloudflare Workers, ókeypis plan, aðgangur Björns. Workerinn heitir `smali` og er tengdur við github.com/bjozzi/smali í gegnum Workers Builds, svo hvert push á `main` setur upp sjálfkrafa. Fyrsta keyrslan var á tómri geymslu og hefur líklega mistekist.
 Builds: https://dash.cloudflare.com/ebaa720b6b44f3d5d0542b78df435b4b/workers/services/view/smali/production/builds
@@ -28,11 +25,11 @@ Sýnishorn án netþjóns (gervikort, hermdir smalar): https://claude.ai/artifac
 
 ## Verkefni sem eru eftir
 
-1. **Push og fyrsta uppsetning.** `git add . && git commit && git push` (worker.js, wrangler.jsonc, README.md, CLAUDE.md; ekki commita zip skrána nema Björn vilji). Fylgjast með keyrslunni hjá Cloudflare. Ef hún mistekst: athuga build stillingar workersins (deploy skipun á að vera `npx wrangler deploy`, rót `/`, engin build skipun).
-2. **Staðfesta kort Landmælinga. ÓPRÓFAÐ.** gis.lmi.is var lokað úr sandkassanum sem þetta var smíðað í, svo allar prófanir notuðu gervikort. Opna `/tile/12/1798/1088.png` (Reykjavík) á uppsettu slóðinni. Ef það skilar 502: sækja `https://gis.lmi.is/mapcache/web-mercator/wmts?SERVICE=WMTS&REQUEST=GetCapabilities` (eða `.../wms?request=GetCapabilities`), finna rétt laganafn og laga `lmiTileUrl()`. Annar kostur er að skipta yfir í WMTS/TMS slóð ef hún er til.
+1. **Push og fyrsta uppsetning.** `git add . && git commit && git push` (worker.js, wrangler.jsonc, README.md, CLAUDE.md; ekki commita zip skrána nema Björn vilji). Pushað 6. okt. 2026. Fylgjast með keyrslunni hjá Cloudflare. Ef hún mistekst: athuga build stillingar workersins (deploy skipun á að vera `npx wrangler deploy`, rót `/`, engin build skipun).
+2. **Staðfesta kort Landmælinga. ÓPRÓFAÐ.** gis.lmi.is var lokað úr sandkassanum sem þetta var smíðað í, svo allar prófanir notuðu gervikort. Opna `/tile/12/1798/1088.png` (Reykjavík) á uppsettu slóðinni. Ef það skilar 502: sækja `https://gis.lmi.is/mapcache/web-mercator/wmts?SERVICE=WMTS&REQUEST=GetCapabilities` (eða `.../wms?request=GetCapabilities`), finna rétt laganafn og laga `lmiTileUrl()` í `src/handler.js`. Annar kostur er að skipta yfir í WMTS/TMS slóð ef hún er til.
 3. **Prófa á síma:** `/?demo` á alvöru korti; svo alvöru hópur með tveimur símum, ganga um, setja annan í flugstillingu og sjá slóðina skila sér.
 4. **Prófa iPhone sérstaklega:** bæta á heimaskjá, vista kort, opna í flugstillingu.
-5. **Færa yfir í upprunakóðann (mælt með):** afþjappa `smali-src.zip`, fjarlægja `worker.js`, nota `wrangler.jsonc` úr zip (með `assets: ./public`), `npm install`, `npm test`, `npx wrangler dev`. Workers Builds keyrir þá `npm install` sjálft. Eftir þetta á aldrei að breyta `worker.js` handvirkt.
+5. ~~Færa yfir í upprunakóðann~~ Gert 6. okt. 2026. `worker.js` er ekki lengur til; breyta `src/` og `public/` beint.
 
 ## Hugmyndir sem Björn hefur nefnt eða ekki svarað
 

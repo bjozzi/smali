@@ -13,12 +13,13 @@ Vefapp fyrir smalamennsku: allir í hópnum sjá hvar hinir eru á korti Landmæ
 
 ## Koma því í loftið (ókeypis, um 5 mínútur)
 
+Cloudflare Workers er tengt þessari geymslu og byggir sjálfkrafa við hvert push á `main`. Til að setja upp handvirkt:
+
 Þarft Node.js 20 eða nýrra og ókeypis Cloudflare aðgang (https://dash.cloudflare.com/sign-up).
 
-Cloudflare Workers er tengt þessari geymslu og byggir sjálfkrafa við hvert push. Til að setja upp handvirkt:
-
 ```bash
-npx wrangler login
+npm install
+npx wrangler login      # opnar vafra, skráðu þig inn hjá Cloudflare
 npx wrangler deploy
 ```
 
@@ -48,13 +49,13 @@ Cloudflare Workers Free: 100.000 beiðnir á dag (endurstillist kl. 00:00 UTC). 
 
 ## Hvernig það virkar
 
-- `worker.js`: allt í einni skrá, búin til úr upprunakóðanum (src/ og public/ möppum). Einn Durable Object (SQLite) per hópkóða geymir smala og slóðir í 3 daga, hreinsar sjálfur.
-- API (`POST /api/g/:kóði/sync` sendir eigin punkta og fær allt nýtt frá hinum í einni köllun) og kortaproxy (`/tile/z/x/y.png` → WMS Landmælinga, `LMI_Kort` í EPSG:3857).
-- Vefappið (Leaflet, service worker sem vistar appið og kortaflísar, biðröð í localStorage) er inni í `worker.js` sem `ASSETS`.
+- `src/worker.js`: Cloudflare Worker. Einn Durable Object (SQLite) per hópkóða geymir smala og slóðir í 3 daga, hreinsar sjálfur.
+- `src/handler.js`: API (`POST /api/g/:kóði/sync` sendir eigin punkta og fær allt nýtt frá hinum í einni köllun) og kortaproxy (`/tile/z/x/y.png` → WMS Landmælinga, `LMI_Kort` í EPSG:3857).
+- `public/`: vefappið. Leaflet, service worker sem vistar appið og kortaflísar, biðröð í localStorage.
 
 ## Kort
 
-Kortin eru frá Landmælingum Íslands (opin gögn, má nota frjálst með tilvísun). Workerinn sækir þau frá `https://gis.lmi.is/mapcache/web-mercator/` sem WMS með `LAYERS=LMI_Kort`. Ég gat ekki prófað þá þjónustu beint þegar þetta var skrifað, svo ef kortin birtast ekki er fyrsta skrefið að opna eina flísarslóð, t.d. `/tile/12/1798/1088.png` (Reykjavík), og sjá villuna. Laganafn og slóð eru í `lmiTileUrl()` í `worker.js`.
+Kortin eru frá Landmælingum Íslands (opin gögn, má nota frjálst með tilvísun). Workerinn sækir þau frá `https://gis.lmi.is/mapcache/web-mercator/` sem WMS með `LAYERS=LMI_Kort`. Ég gat ekki prófað þá þjónustu beint þegar þetta var skrifað, svo ef kortin birtast ekki er fyrsta skrefið að opna eina flísarslóð, t.d. `/tile/12/1798/1088.png` (Reykjavík), og sjá villuna. Laganafn og slóð eru í `lmiTileUrl()` í `src/handler.js`.
 
 ## Öryggi
 

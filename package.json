@@ -1,0 +1,15 @@
+{
+  "name": "smali",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Smali: sjáðu alla í smalamennskunni á korti, líka í þoku og stopulu sambandi",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "node --no-warnings test/group.test.mjs && node test/sweep.test.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4"
+  }
+}
